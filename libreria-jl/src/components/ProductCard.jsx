@@ -4,15 +4,15 @@ export default function ProductCard({product}){
             <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-48 object-cover"/>
+                className="w-full h-48 object-contain"/>
             <div className="p-4">
                 < h3 className="font-bold text-lg">{product.name}</h3>
                 <p className="text-gray-700">${product.price}</p>
-                <button className="mt-2 bg-blue-500 text-whir
+                <button className="mt-2 bg-fuchsia-400 text-whir
                  px-4 py-2 rounded hover:bg-blue-600 transition-colors">Agregar al carrito
                  </button>
                     
-                </div>    
+            </div>    
         </div>
     );
 }

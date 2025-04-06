@@ -12,6 +12,13 @@ export const products=[
         name:'Globos de colores perlados',
         price:800,
         category:'cotillon',
-        Image:"/images/globPerla.webp"
+        image:"/images/globPerla.webp"
+    },
+    {
+        id:3,
+        name:'Lapicera Bic',
+        price:800,
+        category:'libreria',
+        image:"/images/globPerla.webp"
     }
 ];
