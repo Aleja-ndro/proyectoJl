@@ -1,7 +1,11 @@
 body{
     display: flex;
     justify-content: space-between;
-    gap: 4px;
+    align-items: stretch;
+    padding: 20px;
+    gap: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
     font-family: Arial,sans-serif;
     margin: 0;
     padding: 20px;
@@ -9,6 +13,8 @@ body{
 }
 
 .container{
+    flex: 1;
+    min-width: 0;
     max-width: 700px;
     margin: 0 auto;
     background: rgb(126, 192, 156);
