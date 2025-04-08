@@ -1,0 +1,14 @@
+services:
+-type: web
+name: jl-backend
+env: java
+plan: free
+buildCommand: "./mvnw clean package"
+startCommand: "java -jar target/demo-0.0.1-SNAPSHOT.jar"
+envVars:
+-key: SPRING_DATASOURCE_URL
+value: jdbc:postgresql://db.nduxzxwgsoywcndrrggf.supabase.co:5432/postgres
+-key: SPRING_DATASOURCE_USERNAME
+value: postgres 
+-key: SPRING_DATASOURCE_PASSWORD
+value: Black_9300++libreria
