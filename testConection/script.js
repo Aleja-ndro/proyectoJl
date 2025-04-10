@@ -5,7 +5,7 @@ async function buscarProductos() {
     resultsContainer.innerHTML = '<p>Buscando...</p>';
 
     try {
-        const response = await fetch(`http://localhost:8081/productos/buscar?keyword=${encodeURIComponent(keyword)}`, {
+        const response = await fetch(`http://localhost:8080/productos/buscar?keyword=${encodeURIComponent(keyword)}`, {
             headers: {
                 'Content-Type': 'application/json'
             }
