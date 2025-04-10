@@ -2,14 +2,15 @@ version: '3.8'
 
 services:
   app:
-    build: ./libreriaBack
+    build: .
     ports:
       - "8080:8080"  # Puerto de la aplicación (ajusta según tu configuración)
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db.nduxzxwgsoywcndrrggf.supabase.co:5432/postgres
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: Black_9300++libreria  # <-- Reemplaza esto
-      SPRING_JPA_PROPERTIES_HIBERNATE_SSL_MODE: "disable"
-      SPRING_JPA_PROPERTIES_HIBERNATE_SSL_FACTORY: "org.postgresql.ssl.DefaultJavaSSLFactory"
-    # Opcional: Variables para Render (SSL)
+      networks:
+      - default
+    dns:
+      - 8.8.8.8 # Opcional: Variables para Render (SSL)
     # command: ["java", "-Djavax.net.ssl.trustStorePassword=changeit", "-jar", "app.jar"]
