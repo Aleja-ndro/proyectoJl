@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "Producto")
+@Table(name = "\"Producto\"")
 public class Producto {
 
     @Id
