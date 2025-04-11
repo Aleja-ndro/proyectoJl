@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  libreria-back:
+    build: .
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres"
+      SPRING_DATASOURCE_USERNAME: "postgres.nduxzxwgsoywcndrrggf"
+      SPRING_DATASOURCE_PASSWORD: "Black9300_libreria"
+    ports:
+      - "8080:8080"
