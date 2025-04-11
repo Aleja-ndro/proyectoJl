@@ -1,11 +1,11 @@
 async function buscarProductos() {
     const keyword = document.getElementById('searchInput').value;
     const resultsContainer = document.getElementById('resultsContainer');
-    
+    const API_BASE_URL='https://proyectojl.onrender.com';
     resultsContainer.innerHTML = '<p>Buscando...</p>';
 
     try {
-        const response = await fetch(`http://localhost:8080/productos/buscar?keyword=${encodeURIComponent(keyword)}`, {
+        const response = await fetch(`${API_BASE_URL}/productos/buscar?keyword=${encodeURIComponent(keyword)}`, {
             headers: {
                 'Content-Type': 'application/json'
             }
