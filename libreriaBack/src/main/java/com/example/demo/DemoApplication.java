@@ -24,9 +24,12 @@ public class DemoApplication {
 						.allowedOrigins(
 								"http://127.0.0.1:5500",
 								"http://localhost:5500",
-								"https://proyecto-jl-ls8s.vercel.app")
-						.allowedMethods("GET", "POST", "PUT", "DELETE")
-						.allowedHeaders("*");
+								"https://proyecto-jl-ls8s.vercel.app",
+								"https://proyectojl.onrender.com")
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+						.allowedHeaders("*")
+						.allowCredentials(true)
+						.maxAge(3600);
 			}
 		};
 	}

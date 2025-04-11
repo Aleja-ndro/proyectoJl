@@ -5,9 +5,16 @@ async function buscarProductos() {
     resultsContainer.innerHTML = '<p>Buscando...</p>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/productos/buscar?keyword=${encodeURIComponent(keyword)}`, {
+        const response = await fetch
+        (`${API_BASE_URL}/productos/buscar?keyword=
+            ${encodeURIComponent(keyword)}`, 
+            {
+                method:'GET',
+                mode:'cors',
+                credentials:'same-origin',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept':'application/json'
             }
         });
 
