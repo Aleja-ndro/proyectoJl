@@ -25,7 +25,7 @@ async function buscarProductos() {
         const productos = await response.json();
         
         if (productos.length === 0) {
-            resultsContainer.innerHTML = '<p>No se encontraron productos</p>';
+            resultsContainer.innerHTML = '<p>No hay nada</p>';
         } else {
             resultsContainer.innerHTML = productos.map(p => `
                 <div class="producto">
