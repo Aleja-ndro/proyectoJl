@@ -1,6 +1,7 @@
 import { useState } from "react"
 import {useNavigate } from "react-router-dom";
 import InputBusqueda from "./inputBusqueda";
+import{useState,useEffect} from "react";
 export default function Buscador(){
 
     const [busqueda, setBusqueda]= useState("")
@@ -32,6 +33,15 @@ export default function Buscador(){
     const total= seleccionados.reduce((acum,producto)=>{
         return acum +producto.price;
     },0)
+
+    
+    useEffect(()=>{
+        const encontrados =productosDisponibles.filter(
+            (producto)=>
+                producto.name.toLocaleLowerCase().includes(busqueda.toLocaleLowerCase()));
+            setResultados(encontrados);
+    },[busqueda]);
+
     
     return(
         <div className="container grid grid-cols-3 gap-4">
