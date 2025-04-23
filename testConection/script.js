@@ -36,3 +36,26 @@ async function buscarProductos() {
         `;
     }
 }
+async function agregarProducto(params) {
+    const descripcion=document.getElementById('inputDescripcion').value;
+    const nuevoProducto={
+        descripcion:descripcion,
+        precioVenta:0,
+        stock:0,
+
+    };
+    try{
+        const response =await fetch('https://proyectojl.onrender.com/productos/agregar',{ 
+            method: 'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify(nuevoProducto)
+         });
+         if (!response.ok) throw new Error("Error al agregar")
+            const resultado=await response.json();
+        alert("Producto agregado: "+resultado.descripcion);
+    }catch(error){
+        alert("Error: "+ error.message);
+    }
+}
