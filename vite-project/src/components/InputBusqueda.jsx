@@ -1,4 +1,4 @@
-export default function InputBusqueda({busqueda,setBusqueda,buscarProductos }){
+export default function InputBusqueda({busqueda,setBusqueda,onBuscar }){
     return (
         <div className="flex flex-col mb-4">
             <input
@@ -6,12 +6,7 @@ export default function InputBusqueda({busqueda,setBusqueda,buscarProductos }){
             value={busqueda}
             onChange={(e)=>setBusqueda(e.target.value)}
             placeholder="Escribi el articulo a buscar..."
-            className="border p-2 roundes w-full"/> 
-            <button
-            onClick={buscarProductos}
-            className="bg-yellow-400 text-white px-4 mt-2 rounded">
-                Buscar
-            </button>
-        </div>
+            className="text-neutral-800 border p-2 roundes w-full"/> 
+         </div>
     )
 }
