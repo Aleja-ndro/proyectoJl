@@ -2,7 +2,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';  // Asegúrate de importar Login
 import Buscador from './components/Buscador';  // Asegúrate de importar Buscador
-import Kiosko from './pages/kiosko';
+import Kiosko from './pages/Kiosko.jsx';
 
 function App() {
   return (
