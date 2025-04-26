@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import InputBusqueda from "../components/inputBusqueda";
+import InputBusqueda from "../components/InputBusqueda";
 import FormularioProducto from "../components/FormularioProducto";  // Asegúrate de importar el componente correctamente
 import { supabase } from "../../supabaseClient";
 
