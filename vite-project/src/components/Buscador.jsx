@@ -1,6 +1,6 @@
 
 import {useNavigate } from "react-router-dom";
-import InputBusqueda from "./inputBusqueda";
+import InputBusqueda from "./InputBusqueda";
 import{useState,useEffect} from "react";
 export default function Buscador(){
 
