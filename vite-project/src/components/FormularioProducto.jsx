@@ -9,6 +9,7 @@ export default function FormularioProducto({
 }) {
   const [formData, setFormData] = useState({
     name: '',
+    costo:'',
     price: '',
     cantidad: '',
     marca: '',
@@ -22,6 +23,7 @@ export default function FormularioProducto({
     if (producto && isEditing) {
       setFormData({
         name: producto.name || '',
+        costo:producto.costo  || '',
         price: producto.price || '',
         cantidad: producto.cantidad || '',
         marca: producto.marca || '',
@@ -95,6 +97,18 @@ export default function FormularioProducto({
           type="text"
           name="name"
           value={formData.name}
+          onChange={handleChange}
+          className="w-full p-2 border rounded text-gray-800"
+          required
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Costo</label>
+        <input
+          type="number"
+          name="price"
+          step="0.01"
+          value={formData.costo}
           onChange={handleChange}
           className="w-full p-2 border rounded text-gray-800"
           required
