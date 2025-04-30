@@ -15,9 +15,9 @@ export default function Login() {
         // Simulación de autenticación con delay
         setTimeout(() => {
             if (user === "admin" && password === '123') {
-                navigate("/buscador");
+                navigate("/buscador");  // Ruta en minúsculas
             } else if (user === "Nelson" && password === '12345678') {
-                navigate("/Kiosko");
+                navigate("/kiosko");  // Ruta en minúsculas
             } else {
                 setError("Usuario o contraseña incorrectos");
                 // Efecto de shake para el error
