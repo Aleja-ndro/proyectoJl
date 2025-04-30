@@ -1,93 +1,180 @@
-import { useState } from "react";
-import { supabase } from "../../supabaseClient";
+import { useState, useEffect, useRef } from 'react';
+import { supabase } from '../../supabaseClient';
 
-export default function FormularioProducto({ onProductAgregado }) {
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const[costo,setCosto]= useState('');
-    const [cantidad, setCantidad] = useState('');
-    const [marca, setMarca] = useState('');
-    const [rubro, setRubro] = useState('');
-    const [message, setMessage] = useState('');
-    const [image, setImage] = useState(null);
+export default function FormularioProducto({ 
+  producto = null, 
+  isEditing = false, 
+  onProductAgregado, 
+  onCancel 
+}) {
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    cantidad: '',
+    marca: '',
+    imagen: ''
+  });
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
-    const AgregarProducto = async () => {
-        if (!name || !price || !cantidad || !marca || !rubro || !costo) {
-            setMessage('Por favor, complete todos los campos');
-            return;
-        }
+  useEffect(() => {
+    if (producto && isEditing) {
+      setFormData({
+        name: producto.name || '',
+        price: producto.price || '',
+        cantidad: producto.cantidad || '',
+        marca: producto.marca || '',
+        imagen: producto.imagen || ''
+      });
+    }
+  }, [producto, isEditing]);
 
-        // Validar que precio y cantidad sean números válidos
-        if (isNaN(price) || isNaN(cantidad)) {
-            setMessage('Por favor ingrese un valor numérico para el precio y la cantidad.');
-            return;
-        }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-        try {
-            let imagenUrl = null;
-            if (image) {
-                const { data: uploadData, error: uploadError } = await supabase
-                    .storage
-                    .from('image')
-                    .upload(`${Date.now()}-${image.name}`, image);
-                    console.log("Resultado del upload:", uploadData, uploadError);
-                if (uploadError) throw new Error(uploadError.message);
-                
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      
+      // Mostrar preview de la imagen
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFormData(prev => ({ ...prev, img_url: event.target.result }));
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
 
-                // Obtener la URL pública del archivo subido
-                const baseUrl='https://nduxzxwgsoywcndrrggf.supabase.co/storage/v1/object/public/image/';
-                
-                imagenUrl = uploadData ? `${baseUrl}${uploadData.path.replace(/^\/+/, '')}`:null;
-                console.log("URL de la imagen generaaaa:", imagenUrl);
-            }
-            console.log("Datos antes del insert:", {
-                name, costo, price, cantidad, marca, rubro, imagen: imagenUrl
-              });
-            console.log('url imagen generadoa',imagenUrl);
-            const { data, error } = await supabase
-                .from('accecelulares')
-                .insert([{
-                    name,
-                    costo,
-                    price,
-                    cantidad,
-                    marca,
-                    rubro,
-                    imagen: imagenUrl
-                }]);
-                console.log("Insert completado:", data, error);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Subir imagen si hay un archivo seleccionado
+    if (file) {
+      setUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-            if (error) throw new Error(error.message);
+        const { error: uploadError } = await supabase.storage
+          .from('productos')
+          .upload(filePath, file);
 
-            setMessage("Producto agregado con éxito");
-            setName('');
-            setCosto('');
-            setPrice('');
-            setCantidad('');
-            setMarca('');
-            setRubro('');
-            setImage(null);  // Limpiar la imagen
-            if (onProductAgregado) onProductAgregado();
+        if (uploadError) throw uploadError;
 
-        } catch (error) {
-            setMessage(`Error: ${error.message}`);
-        }
-    };
+        const { data: { publicUrl } } = supabase.storage
+          .from('productos')
+          .getPublicUrl(filePath);
 
-    return (
-        <div className="bg-white text-black p-4 rounded-lg shadow-md mb-4">
-            <h2 className="text-xl font-bold mb2">Agregar producto</h2>
-            <input type="text" placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} className="mb-2 p-2 w-full border" />
-            <input type="text" placeholder="Costo" value={costo} onChange={(e) => setCosto(e.target.value)} className="mb-2 p-2 w-full border" />
-            <input type="text" placeholder="Precio venta" value={price} onChange={(e) => setPrice(e.target.value)} className="mb-2 p-2 w-full border" />
-            <input type="text" placeholder="Cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} className="mb-2 p-2 w-full border" />
-            <input type="text" placeholder="Marca" value={marca} onChange={(e) => setMarca(e.target.value)} className="mb-2 p-2 w-full border" />
-            <input type="text" placeholder="Rubro" value={rubro} onChange={(e) => setRubro(e.target.value)} className="mb-2 p-2 w-full border" />
-            <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
-            <button onClick={AgregarProducto} className="bg-green-400 hover:bg-green-600 text-white p-2 w-full rounded">
-                Agregar
-            </button>
-            {message && <p className="mt-2 text-sm">{message}</p>}
-        </div>
-    );
+        setFormData(prev => ({ ...prev, imagen: publicUrl }));
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('Error al subir la imagen');
+        setUploading(false);
+        return;
+      }
+    }
+
+    onProductAgregado({
+      ...formData,
+      price: parseFloat(formData.price),
+      cantidad: parseInt(formData.cantidad)
+    });
+    
+    setUploading(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Nombre</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          className="w-full p-2 border rounded text-gray-800"
+          required
+        />
+      </div>
+      
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Precio</label>
+        <input
+          type="number"
+          name="price"
+          step="0.01"
+          value={formData.price}
+          onChange={handleChange}
+          className="w-full p-2 border rounded text-gray-800"
+          required
+        />
+      </div>
+      
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Cantidad</label>
+        <input
+          type="number"
+          name="cantidad"
+          value={formData.cantidad}
+          onChange={handleChange}
+          className="w-full p-2 border rounded text-gray-800"
+          required
+        />
+      </div>
+      
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Marca</label>
+        <input
+          type="text"
+          name="categoria"
+          value={formData.marca}
+          onChange={handleChange}
+          className="w-full p-2 border rounded text-gray-800"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Imagen del Producto</label>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="w-full p-2 border rounded text-gray-800"
+          accept="image/*"
+          disabled={uploading}
+        />
+        {formData.imagen && (
+          <div className="mt-2">
+            <img 
+              src={formData.imagen} 
+              alt="Preview" 
+              className="h-20 object-cover rounded"
+            />
+          </div>
+        )}
+      </div>
+      
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+          disabled={uploading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400"
+          disabled={uploading}
+        >
+          {uploading ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Agregar Producto')}
+        </button>
+      </div>
+    </form>
+  );
 }
