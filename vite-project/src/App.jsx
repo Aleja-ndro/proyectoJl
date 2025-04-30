@@ -1,20 +1,14 @@
-import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';  // Asegúrate de importar Login
-import Buscador from './components/Buscador';  // Asegúrate de importar Buscador
-import Kiosko from './pages/Kiosko.jsx';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/buscador" element={<Buscador />} />
-        <Route path='/Kiosko' element={<Kiosko/>}/>
-        <Route path='/Login' element={<Login/>}></Route>
-       </Routes>
-    </BrowserRouter>
+        <Route path="/Kiosko" element={<Kiosko/>}/>
+        <Route path="/Login" element={<Login/>}/>
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
