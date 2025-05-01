@@ -25,14 +25,13 @@ export default function FormularioProducto({
     if (producto && isEditing) {
       setFormData({
         name: producto.name || '',
-        costo: producto.costo || '',
-        price: producto.price || '',
-        cantidad: producto.cantidad || '',
+        costo: producto.costo ? producto.costo.toString() : '',
+        price: producto.price ? producto.price.toString() : '',
+        cantidad: producto.cantidad ? producto.cantidad.toString() : '',
         marca: producto.marca || '',
         imagen: producto.imagen || ''
       });
     } else {
-      // Resetear formulario si no está en modo edición
       setFormData({
         name: '',
         costo: '',
@@ -46,7 +45,19 @@ export default function FormularioProducto({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (value === '') {
+      setFormData(prev => ({ ...prev, [name]: '' }));
+      return;
+    }
+
+    if (['costo', 'price', 'cantidad'].includes(name)) {
+      if (/^\d*\.?\d*$/.test(value)) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -87,14 +98,13 @@ export default function FormularioProducto({
   
       const productData = {
         name: formData.name,
-        costo: parseFloat(formData.costo) || 0,
-        price: parseFloat(formData.price),
-        cantidad: parseInt(formData.cantidad),
+        costo: formData.costo ? parseFloat(formData.costo) : 0,
+        price: formData.price ? parseFloat(formData.price) : 0,
+        cantidad: formData.cantidad ? parseInt(formData.cantidad) : 0,
         marca: formData.marca,
         imagen: imageUrl
       };
   
-      // Si está en modo edición, incluir el ID
       if (isEditing && producto) {
         productData.id = producto.id;
       }
@@ -110,81 +120,84 @@ export default function FormularioProducto({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Campo Nombre */}
       <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Nombre</label>
+        <label className="block text-gray-700 mb-2 text-sm font-medium">Nombre</label>
         <input
           type="text"
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+          className="w-full p-2 text-sm text-gray-700 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
           required
         />
       </div>
 
       {/* Campo Costo */}
       <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Costo</label>
+        <label className="block text-gray-700 mb-2 text-sm font-medium">Costo</label>
         <input
-          type="number"
+          type="text"
           name="costo"
-          step="0.01"
           value={formData.costo}
           onChange={handleChange}
-          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+          className="w-full p-2 text-sm text-gray-700 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
           required
+          inputMode="decimal"
+          placeholder="0.00"
         />
       </div>
 
       {/* Campo Precio */}
       <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Precio</label>
+        <label className="block text-gray-700 mb-2 text-sm font-medium">Precio</label>
         <input
-          type="number"
+          type="text"
           name="price"
-          step="0.01"
           value={formData.price}
           onChange={handleChange}
-          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+          className="w-full p-2 text-sm text-gray-700 border border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
           required
+          inputMode="decimal"
+          placeholder="0.00"
         />
       </div>
 
       {/* Campo Cantidad */}
       <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Cantidad</label>
+        <label className="block text-gray-700 mb-2 text-sm font-medium">Cantidad</label>
         <input
-          type="number"
+          type="text"
           name="cantidad"
           value={formData.cantidad}
           onChange={handleChange}
-          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+          className="w-full p-2 text-sm text-gray-700 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
           required
+          inputMode="numeric"
         />
       </div>
 
       {/* Campo Marca */}
       <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Marca</label>
+        <label className="block text-gray-700 mb-2 text-sm font-medium">Marca</label>
         <input
           type="text"
           name="marca"
           value={formData.marca}
           onChange={handleChange}
-          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+          className="w-full p-2 text-sm border text-gray-700 border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
       {/* Campo Imagen */}
       <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Imagen del Producto</label>
+        <label className="block text-gray-700 mb-2 text-sm font-medium">Imagen del Producto</label>
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+          className="w-full p-2 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
           accept="image/*"
           disabled={uploading}
         />
@@ -200,21 +213,26 @@ export default function FormularioProducto({
       </div>
 
       {/* Botones */}
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+          className="px-4 py-2 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
           disabled={uploading}
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400"
+          className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
           disabled={uploading}
         >
-          {uploading ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Agregar Producto')}
+          {uploading ? (
+            <>
+              <span className="inline-block animate-spin mr-2">↻</span>
+              Guardando...
+            </>
+          ) : isEditing ? 'Guardar Cambios' : 'Agregar Producto'}
         </button>
       </div>
     </form>

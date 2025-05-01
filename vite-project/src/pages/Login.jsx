@@ -16,7 +16,7 @@ export default function Login() {
         setTimeout(() => {
             if (user === "admin" && password === '123') {
                 navigate("/buscador");  // Ruta en minúsculas
-            } else if (user === "Nelson" && password === '12345678') {
+            } else if (user === "Nelson" && password === 'Lafamilia0430') {
                 navigate("/kiosko");  // Ruta en minúsculas
             } else {
                 setError("Usuario o contraseña incorrectos");
