@@ -179,42 +179,85 @@ export default function Kiosko() {
   };
 
   // Recargar productos después de agregar uno nuevo
-  const handleProductAgregado = async () => {
+  const handleProductAgregado = async (nuevoProducto) => {
     setIsLoading(true);
-    const { data, error } = await supabase.from("accecelulares").select("*");
-    if (!error) {
+    try {
+      // 1. Insertar el nuevo producto en Supabase
+      const { data: insertedData, error: insertError } = await supabase
+        .from("accecelulares")
+        .insert([nuevoProducto])
+        .select();
+  
+      if (insertError) throw insertError;
+  
+      // 2. Actualizar el estado local con los nuevos datos
+      const { data, error: fetchError } = await supabase
+        .from("accecelulares")
+        .select("*");
+  
+      if (fetchError) throw fetchError;
+  
       setProductosOriginales(data);
       setProductos(data);
+      
+      // 3. Cerrar el modal
+      setShowAddModal(false);
+      
+      // Opcional: Mostrar mensaje de éxito
+      alert("Producto agregado correctamente");
+      
+      return insertedData[0];
+    } catch (error) {
+      console.error("Error al agregar producto:", error);
+      alert(`Error al agregar producto: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-    setShowAddModal(false);
   };
 
   // Modificar producto
-  const handleModificarProducto = async (datosActualizados) => {
-    if (!productoSeleccionado) return;
+// Modificar producto - Versión corregida
+const handleModificarProducto = async (datosActualizados) => {
+  if (!productoSeleccionado) return;
+  
+  try {
+    // Asegurarse de incluir el ID y todos los campos necesarios
+    const datosCompletos = {
+      ...datosActualizados,
+      id: productoSeleccionado.id,
+      // Incluir todos los campos que espera tu tabla
+      name: datosActualizados.name,
+      costo: parseFloat(datosActualizados.costo),
+      price: parseFloat(datosActualizados.price),
+      cantidad: parseInt(datosActualizados.cantidad),
+      marca: datosActualizados.marca,
+      imagen: datosActualizados.imagen
+    };
+
+    const { error } = await supabase
+      .from('accecelulares')
+      .update(datosCompletos)
+      .eq('id', productoSeleccionado.id);
+
+    if (error) throw error;
+
+    // Actualizar el estado local directamente sin recargar todo
+    setProductos(prev => prev.map(p => 
+      p.id === productoSeleccionado.id ? { ...p, ...datosCompletos } : p
+    ));
+    setProductosOriginales(prev => prev.map(p => 
+      p.id === productoSeleccionado.id ? { ...p, ...datosCompletos } : p
+    ));
     
-    try {
-      const { error } = await supabase
-        .from('accecelulares')
-        .update(datosActualizados)
-        .eq('id', productoSeleccionado.id);
-
-      if (error) throw error;
-
-      // Recargar productos
-      const { data } = await supabase.from("accecelulares").select("*");
-      setProductos(data);
-      setProductosOriginales(data);
-      setProductoSeleccionado(null);
-      setShowEditModal(false);
-      alert("Producto modificado correctamente");
-    } catch (error) {
-      console.error("Error modificando producto:", error);
-      alert(`Error al modificar producto: ${error.message}`);
-    }
-  };
-
+    setProductoSeleccionado(null);
+    setShowEditModal(false);
+    alert("Producto modificado correctamente");
+  } catch (error) {
+    console.error("Error modificando producto:", error);
+    alert(`Error al modificar producto: ${error.message}`);
+  }
+};
   // Función para manejar logout
   const handleLogout = async () => {
     try {
@@ -434,28 +477,26 @@ export default function Kiosko() {
       
       {/* Modal de Edicion producto */}
       {showEditModal && productoSeleccionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-800">Modificar Producto</h3>
-              <button 
-                onClick={() => setShowEditModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <FormularioProducto 
-              producto={productoSeleccionado}
-              isEditing={true}
-              onProductAgregado={handleModificarProducto}
-              onCancel={() => setShowEditModal(false)}
-            />
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white p-4 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto"> {/* Añade max-h y overflow */}
+      <div className="flex justify-between items-center mb-4 sticky top-0 bg-white py-2"> {/* Sticky header */}
+        <h3 className="text-lg font-bold text-gray-800">Editar Producto</h3>
+        <button 
+          onClick={() => setShowEditModal(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ×
+        </button>
+      </div>
+      <FormularioProducto 
+        producto={productoSeleccionado}
+        isEditing={true}
+        onProductAgregado={handleModificarProducto}
+        onCancel={() => setShowEditModal(false)}
+      />
+    </div>
+  </div>
+)}
       
       {/* Modal de confirmación de venta */}
       {showConfirmModal && (
@@ -509,31 +550,27 @@ export default function Kiosko() {
         </div>
       )}
 
-      {/* Modal para agregar producto */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Agregar Nuevo Producto</h3>
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <FormularioProducto 
-              onProductAgregado={async (nuevoProducto) => {
-                await handleProductAgregado(nuevoProducto);
-                setShowAddModal(false);
-              }}
-              onCancel={() => setShowAddModal(false)}
-            />
-          </div>
-        </div>
-      )}
+{showAddModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white p-4 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto"> {/* Cambios aquí */}
+      <div className="flex justify-between items-center mb-3"> {/* Reducido mb-4 a mb-3 */}
+        <h3 className="text-lg font-bold">Agregar Nuevo Producto</h3>
+        <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <FormularioProducto 
+        onProductAgregado={async (nuevoProducto) => {
+          await handleProductAgregado(nuevoProducto);
+          setShowAddModal(false);
+        }}
+        onCancel={() => setShowAddModal(false)}
+      />
+    </div>
+  </div>
+)}
       
       {/* Efectos visuales */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">

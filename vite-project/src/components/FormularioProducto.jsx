@@ -9,25 +9,37 @@ export default function FormularioProducto({
 }) {
   const [formData, setFormData] = useState({
     name: '',
-    costo:'',
+    costo: '',
     price: '',
     cantidad: '',
     marca: '',
     imagen: ''
   });
+
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Cargar datos del producto al iniciar o cambiar
   useEffect(() => {
     if (producto && isEditing) {
       setFormData({
         name: producto.name || '',
-        costo:producto.costo  || '',
+        costo: producto.costo || '',
         price: producto.price || '',
         cantidad: producto.cantidad || '',
         marca: producto.marca || '',
         imagen: producto.imagen || ''
+      });
+    } else {
+      // Resetear formulario si no está en modo edición
+      setFormData({
+        name: '',
+        costo: '',
+        price: '',
+        cantidad: '',
+        marca: '',
+        imagen: ''
       });
     }
   }, [producto, isEditing]);
@@ -41,10 +53,9 @@ export default function FormularioProducto({
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       
-      // Mostrar preview de la imagen
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFormData(prev => ({ ...prev, img_url: event.target.result }));
+        setFormData(prev => ({ ...prev, imagen: event.target.result }));
       };
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -53,44 +64,54 @@ export default function FormularioProducto({
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Subir imagen si hay un archivo seleccionado
-    if (file) {
-      setUploading(true);
-      try {
+    try {
+      let imageUrl = formData.imagen;
+  
+      if (file) {
+        setUploading(true);
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-
+        const fileName = `${Date.now()}.${fileExt}`;
+        
         const { error: uploadError } = await supabase.storage
-          .from('productos')
-          .upload(filePath, file);
-
+          .from('image')
+          .upload(fileName, file);
+  
         if (uploadError) throw uploadError;
-
+  
         const { data: { publicUrl } } = supabase.storage
-          .from('productos')
-          .getPublicUrl(filePath);
-
-        setFormData(prev => ({ ...prev, imagen: publicUrl }));
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        alert('Error al subir la imagen');
-        setUploading(false);
-        return;
+          .from('image')
+          .getPublicUrl(fileName);
+  
+        imageUrl = publicUrl;
       }
+  
+      const productData = {
+        name: formData.name,
+        costo: parseFloat(formData.costo) || 0,
+        price: parseFloat(formData.price),
+        cantidad: parseInt(formData.cantidad),
+        marca: formData.marca,
+        imagen: imageUrl
+      };
+  
+      // Si está en modo edición, incluir el ID
+      if (isEditing && producto) {
+        productData.id = producto.id;
+      }
+  
+      await onProductAgregado(productData);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al guardar: ' + error.message);
+    } finally {
+      setUploading(false);
     }
-
-    onProductAgregado({
-      ...formData,
-      price: parseFloat(formData.price),
-      cantidad: parseInt(formData.cantidad)
-    });
-    
-    setUploading(false);
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {/* Campo Nombre */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Nombre</label>
         <input
@@ -98,23 +119,26 @@ export default function FormularioProducto({
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-gray-800"
+          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
           required
         />
       </div>
+
+      {/* Campo Costo */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Costo</label>
         <input
           type="number"
-          name="price"
+          name="costo"
           step="0.01"
           value={formData.costo}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-gray-800"
+          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
           required
         />
       </div>
-      
+
+      {/* Campo Precio */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Precio</label>
         <input
@@ -123,11 +147,12 @@ export default function FormularioProducto({
           step="0.01"
           value={formData.price}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-gray-800"
+          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
           required
         />
       </div>
-      
+
+      {/* Campo Cantidad */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Cantidad</label>
         <input
@@ -135,29 +160,31 @@ export default function FormularioProducto({
           name="cantidad"
           value={formData.cantidad}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-gray-800"
+          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
           required
         />
       </div>
-      
+
+      {/* Campo Marca */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Marca</label>
         <input
           type="text"
-          name="categoria"
+          name="marca"
           value={formData.marca}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-gray-800"
+          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
         />
       </div>
 
+      {/* Campo Imagen */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Imagen del Producto</label>
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          className="w-full p-2 border rounded text-gray-800"
+          className="w-full p-2 border-2 border-blue-800 rounded text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
           accept="image/*"
           disabled={uploading}
         />
@@ -166,12 +193,13 @@ export default function FormularioProducto({
             <img 
               src={formData.imagen} 
               alt="Preview" 
-              className="h-20 object-cover rounded"
+              className="h-20 object-cover rounded border border-gray-300"
             />
           </div>
         )}
       </div>
-      
+
+      {/* Botones */}
       <div className="flex justify-end gap-2">
         <button
           type="button"
