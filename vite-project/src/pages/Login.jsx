@@ -18,7 +18,10 @@ export default function Login() {
                 navigate("/buscador");  // Ruta en minúsculas
             } else if (user === "Nelson" && password === 'Lafamilia0430') {
                 navigate("/kiosko");  // Ruta en minúsculas
-            } else {
+            } else if(user === "Noemi" && password ==='Nietos09'){
+                navigate("/Libreriajl");
+            }
+                else {
                 setError("Usuario o contraseña incorrectos");
                 // Efecto de shake para el error
                 const form = document.querySelector('.login-form');

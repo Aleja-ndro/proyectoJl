@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Buscador from './components/Buscador';
 import Kiosko from './pages/Kiosko';
+import Libreriajl from './pages/LibreriJl';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/buscador" element={<Buscador />} />
         <Route path="/kiosko" element={<Kiosko />} />
+        <Route path='/Libreriajl' element={<Libreriajl/>}/>
         <Route path="*" element={<Login />} /> {/* Ruta de fallback */}
       </Routes>
     </Router>
