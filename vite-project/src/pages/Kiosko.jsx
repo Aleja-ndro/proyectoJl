@@ -65,14 +65,13 @@ export default function Kiosko() {
   //Configurar reinnicio automatico
   const configurarReinicioDiario=()=>{
     const ahora=new Date();
-    const horasRestantes=24-ahora.getHours();
-    const minutosRestantes=24-ahora.getMinutes();
-    const segundosRestantes=24-ahora.getSeconds();
-    
     const msHastaMedianoche=
-    (horasRestantes*60*60*1000)+
-    (minutosRestantes*60*1000)+
-    (segundosRestantes*1000);
+    (24*60*60*1000)-
+    (ahora.getHours()*60*60*1000+
+     ahora.getMinutes()*60*1000+
+     ahora.getSeconds()*1000+
+     ahora.getMilliseconds());
+   
     const timeoutId=setTimeout(()=>{
       //guardar registro diario antes de iniciar
       guardarRegistroDiario();
@@ -81,13 +80,13 @@ export default function Kiosko() {
       //Programar el proximo reinicio
       configurarReinicioDiario();
     },msHastaMedianoche);
-    return()=>clearImmediate(timeoutId);
+    return()=>clearTimeout(timeoutId);
   };
   const limpieza=configurarReinicioDiario();
   return()=>{
     limpieza();
   };
-},[]);
+},[totalFacturado]);
 
   // Filtrar productos
   useEffect(() => {
