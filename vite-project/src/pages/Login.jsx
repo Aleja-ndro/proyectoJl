@@ -20,6 +20,8 @@ export default function Login() {
                 navigate("/kiosko");  // Ruta en minúsculas
             } else if(user === "Noemi" && password ==='Nietos09'){
                 navigate("/Libreriajl");
+            }else if(user === "Test" && password === "12345"){
+                navigate("/Prueba");
             }
                 else {
                 setError("Usuario o contraseña incorrectos");
