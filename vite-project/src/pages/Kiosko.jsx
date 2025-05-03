@@ -4,6 +4,7 @@ import FormularioProducto from "../components/FormularioProducto";
 import { supabase } from "../../supabaseClient";
 import CardProducto from "../components/CardProduct";
 import { useNavigate } from "react-router-dom";
+import { formatearFecha } from "../utils/formatearFecha";
 
 export default function Kiosko() {
   // Estados principales
@@ -19,6 +20,7 @@ export default function Kiosko() {
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [totalFacturado, setTotalFacturado] = useState(0);
+  const [fechaActual,setFechaActual]=useState(new Date().toLocaleDateString());
 
   // Cargar productos y total facturado
   useEffect(() => {
@@ -37,9 +39,14 @@ export default function Kiosko() {
         setProductos(productosData);
         
         // 2. Cargar total facturado
+        const hoy=new Date();
+        const inicioDia=new Date(hoy.setHours(0,0,0,0)).toISOString();
+        const finDia=new Date(hoy.setHours(23,59,59,999)).toISOString();
         const { data: ticketsData, error: ticketsError } = await supabase
           .from('tickets')
-          .select('total');
+          .select('total')
+          .gte('fecha',inicioDia)
+          .lt('fecha',finDia);
         
         if (!ticketsError) {
           const total = ticketsData.reduce((sum, ticket) => sum + ticket.total, 0);
@@ -54,7 +61,32 @@ export default function Kiosko() {
     };
 
     cargarDatosIniciales();
-  }, []);
+  
+  //Configurar reinnicio automatico
+  const configurarReinicioDiario=()=>{
+    const ahora=new Date();
+    const msHastaMedianoche=
+    (24*60*60*1000)-
+    (ahora.getHours()*60*60*1000+
+     ahora.getMinutes()*60*1000+
+     ahora.getSeconds()*1000+
+     ahora.getMilliseconds());
+   
+    const timeoutId=setTimeout(()=>{
+      //guardar registro diario antes de iniciar
+      guardarRegistroDiario();
+      //Reiniciar el estado
+      setTotalFacturado(0);
+      //Programar el proximo reinicio
+      configurarReinicioDiario();
+    },msHastaMedianoche);
+    return()=>clearTimeout(timeoutId);
+  };
+  const limpieza=configurarReinicioDiario();
+  return()=>{
+    limpieza();
+  };
+},[totalFacturado]);
 
   // Filtrar productos
   useEffect(() => {
@@ -301,7 +333,7 @@ const handleModificarProducto = async (datosActualizados) => {
         <h1 className="text-3xl sm:text-4xl font-bold text-center text-yellow-400 mb-2">
           Kiosko Candy
         </h1>
-        <p className="text-center text-blue-200">Gestión de productos y ventas</p>
+        <p className="text-center text-blue-200">{formatearFecha(new Date())}</p>
         <div className="text-center mt-2">
           <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
             Total Facturado: ${totalFacturado.toFixed(2)}
