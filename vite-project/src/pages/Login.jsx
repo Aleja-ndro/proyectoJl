@@ -11,50 +11,47 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
-        
-        // Simulación de autenticación con delay
+
         setTimeout(() => {
-            if (user === "admin" && password === '123') {
-                navigate("/buscador");  // Ruta en minúsculas
-            } else if (user === "Nelson" && password === 'Lafamilia0430') {
-                navigate("/kiosko");  // Ruta en minúsculas
-            } else if(user === "Noemi" && password ==='Nietos09'){
-                navigate("/Libreriajl");
-            }else if(user === "Test" && password === "12345"){
-                navigate("/Prueba");
-            }
-                else {
+            const routes = {
+                "admin:123": "/buscador",
+                "Nelson:Lafamilia0430": "/kiosko",
+                "Noemi:Nietos09": "/libreriajl",
+                "Test:12345": "/prueba"
+            };
+
+            const route = routes[`${user}:${password}`];
+
+            if (route) {
+                navigate(route);
+            } else {
                 setError("Usuario o contraseña incorrectos");
-                // Efecto de shake para el error
                 const form = document.querySelector('.login-form');
                 form.classList.add('animate-shake');
                 setTimeout(() => form.classList.remove('animate-shake'), 500);
             }
+
             setIsLoading(false);
         }, 800);
-    }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex flex-col items-center justify-center p-4">
-            {/* Logo/Título */}
-            <div className="mb-8 text-center transition-all duration-300 hover:scale-105">
+            <div className="mb-8 text-center transition-transform duration-300 hover:scale-105">
                 <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
                     <span className="text-yellow-400">JL</span> Solutions
                 </h1>
                 <p className="text-blue-200 text-sm sm:text-base">Sistema de acceso seguro</p>
             </div>
 
-            {/* Tarjeta de Login */}
             <div className="w-full max-w-sm sm:max-w-md">
                 <form 
                     onSubmit={handleSubmit}
-                    className="login-form bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-xl overflow-hidden border border-white/20 transition-all"
+                    className="login-form bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 transition-all"
                 >
-                    <div className="p-6 sm:p-8 space-y-4 sm:space-y-6">
+                    <div className="p-6 sm:p-8 space-y-6">
                         <div className="space-y-2">
-                            <label htmlFor="username" className="block text-sm font-medium text-blue-100">
-                                Usuario
-                            </label>
+                            <label htmlFor="username" className="block text-sm font-medium text-blue-100">Usuario</label>
                             <div className="relative">
                                 <input
                                     id="username"
@@ -62,22 +59,15 @@ export default function Login() {
                                     placeholder="Ingresa tu usuario"
                                     value={user}
                                     onChange={(e) => setUser(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all placeholder-gray-500"
+                                    className="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
                                     autoFocus
                                     required
                                 />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="password" className="block text-sm font-medium text-blue-100">
-                                Contraseña
-                            </label>
+                            <label htmlFor="password" className="block text-sm font-medium text-blue-100">Contraseña</label>
                             <div className="relative">
                                 <input
                                     id="password"
@@ -85,14 +75,9 @@ export default function Login() {
                                     placeholder="Ingresa tu contraseña"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all placeholder-gray-500"
+                                    className="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
                                     required
                                 />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                </div>
                             </div>
                         </div>
 
@@ -130,8 +115,8 @@ export default function Login() {
 
                     <div className="px-6 py-4 bg-black/10 text-center border-t border-white/10">
                         <a href="#" className="text-blue-200 hover:text-yellow-300 text-sm transition-colors inline-flex items-center">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                             ¿Olvidaste tu contraseña?
                         </a>
@@ -139,7 +124,6 @@ export default function Login() {
                 </form>
             </div>
 
-            {/* Efecto de partículas decorativas */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
                 {[...Array(15)].map((_, i) => (
                     <div 
